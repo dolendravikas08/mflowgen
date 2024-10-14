@@ -19,7 +19,8 @@ def construct():
   # Parameters
   #-----------------------------------------------------------------------
 
-  adk_name = 'freepdk-45nm'
+  # adk_name = 'freepdk-45nm'
+  adk_name = 'nangate45'
   adk_view = 'view-tiny'
 
   parameters = {
@@ -55,6 +56,7 @@ def construct():
   docker = Step( 'orfs-docker-setup',       default=True)
   synth  = Step( 'orfs-yosys-synthesis',    default=True)
   fplan  = Step( 'orfs-openroad-floorplan', default=True)
+  power  = Step( 'orfs-openroad-power', default=True)
   place  = Step( 'orfs-openroad-place',     default=True)
   cts    = Step( 'orfs-openroad-cts',       default=True)
   route  = Step( 'orfs-openroad-route',     default=True)
@@ -69,6 +71,7 @@ def construct():
   g.add_step( docker   )
   g.add_step( synth    )
   g.add_step( fplan    )
+  g.add_step( power    )
   g.add_step( place    )
   g.add_step( cts      )
   g.add_step( route    )
@@ -82,13 +85,15 @@ def construct():
 
   g.connect_by_name( docker,  synth  )
   g.connect_by_name( docker,  fplan  )
+  g.connect_by_name( docker,  power  )
   g.connect_by_name( docker,  place  )
   g.connect_by_name( docker,  cts    )
   g.connect_by_name( docker,  route  )
   g.connect_by_name( docker,  finish )
 
   g.connect_by_name( synth,   fplan  )
-  g.connect_by_name( fplan,   place  )
+  g.connect_by_name( fplan,   power  )
+  g.connect_by_name( power,   place  )
   g.connect_by_name( place,   cts    )
   g.connect_by_name( cts,     route  )
   g.connect_by_name( route,   finish )
